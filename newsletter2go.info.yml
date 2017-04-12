@@ -1,0 +1,8 @@
+name: Newsletter2Go
+type: module
+description: Plugin for API and Newsletter2Go Widget
+core: 8.x
+package: extension
+php: 5.5
+version: 4.0.00
+configure: admin/config/content/newsletter2go

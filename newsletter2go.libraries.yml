@@ -1,0 +1,17 @@
+widget:
+  version: 4.00
+  js:
+    newsletter2go_widget.js: {}
+    newsletter2go_ajax.js: {}
+
+admin:
+  version: 4.00
+  js:
+    jscolor.min.js: {}
+    newsletter2go_default.js: {}
+    newsletter2go.js: {}
+    newsletter2go_ajax.js: {}
+  css:
+    theme:
+      font-awesome.css: {}
+      newsletter2go.css: {}

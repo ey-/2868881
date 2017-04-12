@@ -1,0 +1,5 @@
+newsletter2go.config:
+  title: 'Newsletter2Go'
+  parent: system.admin_config_content
+  description: 'API page for newsletter2go module'
+  route_name: newsletter2go.config

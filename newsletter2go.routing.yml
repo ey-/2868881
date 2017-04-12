@@ -1,0 +1,44 @@
+newsletter2go.config:
+  path: '/admin/config/content/newsletter2go'
+  defaults:
+    _form: '\Drupal\newsletter2go\Form\ConfigForm'
+    _title: 'Newsletter2Go'
+    _description: 'API page for newsletter2go module'
+  requirements:
+    _permission: 'access administration pages'
+
+newsletter2go.page_controller_widgetPreview:
+  path: '/n2go/widget'
+  defaults:
+    _controller: '\Drupal\newsletter2go\Controller\PageController::widgetPreview'
+    _title: 'Widget Preview'
+  requirements:
+    _permission: 'access content'
+
+newsletter2go.page_controller_api_n2go:
+  path: '/api/n2go'
+  defaults:
+    _controller: '\Drupal\newsletter2go\Controller\PageController::apiGo'
+    _title: 'Newsletter2Go'
+  requirements:
+    _permission: 'access content'
+
+newsletter2go.page_controller_n2go_callback:
+  path: '/n2go/callback'
+  defaults:
+    _controller: '\Drupal\newsletter2go\Controller\PageController::goCallback'
+    _title: 'Newsletter2Go'
+  requirements:
+    _access: 'TRUE'
+
+newsletter2go.page_controller_n2go_subscribe:
+  path: '/n2go/subscribe'
+  defaults:
+    _controller: '\Drupal\newsletter2go\Controller\PageController::subscribe'
+    _title: 'Subscribe'
+
+newsletter2go.page_controller_n2go_reset_styles:
+  path: '/n2go/resetStyles'
+  defaults:
+    _controller: '\Drupal\newsletter2go\Controller\PageController::resetStyles'
+    _title: 'Reset form styles'

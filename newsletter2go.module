@@ -1,0 +1,101 @@
+<?php
+
+const N2GO_API_URL = 'https://api.newsletter2go.com/';
+const N2GO_INTEGRATION_URL = 'https://ui.newsletter2go.com/integrations/connect/DRU/';
+const N2GO_REFRESH_GRANT_TYPE = 'https://nl2go.com/jwt_refresh';
+const N2GO_PLUGIN_VERSION = 4000;
+
+/**
+ * Return page alert.
+ *
+ * @param $page
+ */
+function newsletter2go_page_alter(&$page)
+{
+    if (strpos($_SERVER['REQUEST_URI'], url('n2go/widget')) === 0) {
+        $page['page_top'] = null;
+        $page['sidebar_first'] = null;
+        $page['sidebar_second'] = null;
+        $page['page_bottom'] = null;
+        $page['footer'] = null;
+    }
+}
+
+/**
+ * Registers tokens.
+ *
+ * @return array
+ */
+function newsletter2go_token_info()
+{
+    $info = array();
+    // Define token type
+    $info['types']['newsletter2go'] = array(
+        'name' => t('Newsletter2Go'),
+        'description' => t('Tokens related to Newsletter2Go.'),
+    );
+    // Define token [newsletter2go:plugin']
+    $info['tokens']['newsletter2go']['plugin'] = array(
+        'name' => t('Show as plugin'),
+        'description' => t('Embed subscription form in content.'),
+    );
+    // Define token [newsletter2go:popup']
+    $info['tokens']['newsletter2go']['popup'] = array(
+        'name' => t('Show as popup'),
+        'description' => t('Show subscription form as popup on page (modal window).'),
+    );
+
+    return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ *
+ * @param $type
+ * @param $tokens
+ * @param array $data
+ * @param array $options
+ * @return array
+ */
+function newsletter2go_tokens($type, $tokens, array $data = array(), array $options = array())
+{
+    $replacements = array();
+
+    if ($type == 'newsletter2go') {
+        foreach ($tokens as $name => $original) {
+            switch ($name) {
+                case 'plugin':
+                    $block = newsletter2go_block_view($type);
+                    break;
+                case 'subscribe':
+                    $block = newsletter2go_block_view($type, 'createForm', 'subscribe');
+                    break;
+                case 'unsubscribe':
+                    $block = newsletter2go_block_view($type, 'createForm', 'unsubscribe');
+                    break;
+                case 'popup':
+                    $block = newsletter2go_block_view($type, 'createPopup');
+                    break;
+                default:
+                    $block['content'] = "<p style='color:red;'>Wrong short code parameter <b>$name</b> - should be 'plugin' or 'popup'</p>";
+            }
+
+            $replacements[$original] = $block['content'];
+        }
+
+    }
+
+    return $replacements;
+}
+
+function generateRandomString($length = 40)
+{
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+
+    return $randomString;
+}
