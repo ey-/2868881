@@ -141,15 +141,15 @@ class Api {
      * 
      * @return string
      */
-    public function execute($action, $post) {
+    public function execute($action, $post, $method = 'POST') {
         $config = \Drupal::config('newsletter2go.config');
         $access_token = $config->get('accessToken');
-        $responseJson = $this->executeRequest($action, $access_token, $post);
+        $responseJson = $this->executeRequest($action, $access_token, $post, $method);
 
         if ($responseJson['status_code'] == 403 || $responseJson['status_code'] == 401) {
             $this->refreshTokens();
             $access_token = $config->get('accessToken');
-            $responseJson = $this->executeRequest($action, $access_token, $post);
+            $responseJson = $this->executeRequest($action, $access_token, $post, $method);
         }
 
         return $responseJson;
@@ -166,29 +166,29 @@ class Api {
      * 
      * @internal param mixed $params
      */
-    private function executeRequest($action, $access_token, $post) {
+    private function executeRequest($action, $access_token, $post, $method = 'POST') {
         $apiUrl = N2GO_API_URL;
         
         $cURL = curl_init();
         curl_setopt($cURL, CURLOPT_URL, $apiUrl . $action);
         curl_setopt($cURL, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($cURL, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $access_token));
+        curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
+          'Authorization: Bearer ' . $access_token));
 
         if (!empty($post)) {
-            $postData = '';
-            foreach ($post as $k => $v) {
-                $postData .= urlencode($k) . '=' . urlencode($v) . '&';
+            if ($method == 'POST') {
+              curl_setopt($cURL, CURLOPT_POST, 1);
             }
-            $postData = substr($postData, 0, -1);
-
-            curl_setopt($cURL, CURLOPT_POST, 1);
-            curl_setopt($cURL, CURLOPT_POSTFIELDS, $postData);
+            elseif ($method == 'PATCH') {
+              curl_setopt($cURL, CURLOPT_CUSTOMREQUEST, 'PATCH');
+            }
+            curl_setopt($cURL, CURLOPT_POSTFIELDS, \GuzzleHttp\json_encode($post));
         }
 
         curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, FALSE);
         $response = curl_exec($cURL);
         if ($this->debugMode) {
-          $this->logger->debug(__LINE__ . ':' . $action . ':' . $postData . "\r\n" . $response);
+          $this->logger->debug(__LINE__ . ':' . $action . ':' . \GuzzleHttp\json_encode($post) . "\r\n" . $response);
         }
         $response = json_decode($response, TRUE);
         $status = curl_getinfo($cURL);
