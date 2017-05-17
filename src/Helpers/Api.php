@@ -182,6 +182,9 @@ class Api {
             elseif ($method == 'PATCH') {
               curl_setopt($cURL, CURLOPT_CUSTOMREQUEST, 'PATCH');
             }
+            elseif ($method == 'DELETE') {
+              curl_setopt($cURL, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            }
             curl_setopt($cURL, CURLOPT_POSTFIELDS, \GuzzleHttp\json_encode($post));
         }
 
