@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Contains update hooks.
+ */
+
+/**
+ * Move access and refresh tokens from config to key value store.
+ */
+function newsletter2go_update_8001() {
+  $config_factory = \Drupal::configFactory()
+    ->getEditable('newsletter2go.config');
+  $key_value_store = \Drupal::keyValue('newsletter2go');
+  $key_value_store->set('accessToken', $config_factory->get('accessToken'));
+  $key_value_store->set('refreshToken', $config_factory->get('refreshToken'));
+  $config_factory->set('accessToken', NULL);
+  $config_factory->set('refreshToken', NULL);
+  $config_factory->save();
+}

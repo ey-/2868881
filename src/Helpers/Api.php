@@ -142,13 +142,13 @@ class Api {
      * @return string
      */
     public function execute($action, $post, $method = 'POST') {
-        $config = \Drupal::config('newsletter2go.config');
-        $access_token = $config->get('accessToken');
+        $key_value_store = \Drupal::keyValue('newsletter2go');
+        $access_token = $key_value_store->get('accessToken');
         $responseJson = $this->executeRequest($action, $access_token, $post, $method);
 
         if ($responseJson['status_code'] == 403 || $responseJson['status_code'] == 401) {
             $this->refreshTokens();
-            $access_token = $config->get('accessToken');
+            $access_token = $key_value_store->get('accessToken');
             $responseJson = $this->executeRequest($action, $access_token, $post, $method);
         }
 
@@ -211,11 +211,10 @@ class Api {
      */
     private function refreshTokens() {
         $config = \Drupal::config('newsletter2go.config');
-        $config_factory = \Drupal::configFactory()
-          ->getEditable('newsletter2go.config');
+        $key_value_store = \Drupal::keyValue('newsletter2go');
         $authKey = $config->get('authkey');
         $auth = base64_encode($authKey);
-        $refreshToken = $config->get('refreshToken');
+        $refreshToken = $key_value_store->get('refreshToken');
         $refreshPost = array(
           'refresh_token' => $refreshToken,
           'grant_type' => N2GO_REFRESH_GRANT_TYPE,
@@ -246,12 +245,11 @@ class Api {
 
 
         if (isset($response->access_token) && !empty($response->access_token)) {
-            $config_factory->set('accessToken', $response->access_token);
+            $key_value_store->set('accessToken', $response->access_token);
         }
         if (isset($response->refresh_token) && !empty($response->refresh_token)) {
-            $config_factory->set('refreshToken', $response->refresh_token);
+            $key_value_store->set('refreshToken', $response->refresh_token);
         }
-        $config_factory->save();
 
         return TRUE;
     }
@@ -269,7 +267,7 @@ class Api {
       curl_setopt($cURL, CURLOPT_URL, "https://www.newsletter2go.com/en/api/$action/");
       curl_setopt($cURL, CURLOPT_RETURNTRANSFER, TRUE);
       curl_setopt($cURL, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . \Drupal::config('newsletter2go.config')
+        'Authorization: Bearer ' . \Drupal::keyValue('newsletter2go')
           ->get('accessToken'),
       ]);
 
