@@ -451,9 +451,10 @@ class ConfigForm extends ConfigFormBase {
    */
   protected function resetValues() {
     $config_factory = \Drupal::configFactory()->getEditable('newsletter2go.config');
+    $key_value_store = \Drupal::keyValue('newsletter2go');
     $config_factory->set('authkey', null);
-    $config_factory->set('accessToken', null);
-    $config_factory->set('refreshToken', null);
+    $key_value_store->set('accessToken', null);
+    $key_value_store->set('refreshToken', null);
     $config_factory->set('formUniqueCode', null);
     $config_factory->set('widgetStyleConfig', null);
     $config_factory->save();
