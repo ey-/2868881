@@ -2,6 +2,8 @@
 
 namespace Drupal\newsletter2go\Helpers;
 
+use Drupal\Core\Site\Settings;
+
 class Api {
     private $version = 4000;
     private static $instance = null;
@@ -252,6 +254,63 @@ class Api {
         }
 
         return TRUE;
+    }
+
+    /**
+     * Creates request and returns response. New API and access token and refreshToken.
+     */
+    public function retrieveAccessToken() {
+        $config = \Drupal::config('newsletter2go.config');
+        $key_value_store = \Drupal::keyValue('newsletter2go');
+
+        $username = Settings::get('nl2go_username');
+        $password = Settings::get('nl2go_password');
+        $authkey = $config->get('authkey');
+
+        if (empty($username) || empty($password)) {
+          $this->logger->error('Cannot refresh accessToken and RefreshToken due to missing credentials');
+          return;
+        }
+
+        $url = N2GO_API_URL . 'oauth/v2/token';
+        $auth_key_base64 = base64_encode($authkey);
+
+        $header = array(
+          'Authorization: Basic ' . $auth_key_base64,
+          'Content-Type: application/x-www-form-urlencoded'
+        );
+
+        $post_plain = array(
+          'username' => $username,
+          'password' => $password,
+          'grant_type' => 'https://nl2go.com/jwt',
+        );
+        $post = http_build_query($post_plain);
+
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+
+        curl_setopt($curl, CURLOPT_POST, TRUE);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        $response = curl_exec($curl);
+        if ($this->debugMode) {
+          $this->logger->debug(__LINE__ . ':' . $url . ':' . $post . "\r\n" . $response);
+        }
+
+        $response = json_decode($response);
+
+        curl_close($curl);
+        if (isset($response->access_token) && !empty($response->access_token)) {
+          $key_value_store->set('accessToken', $response->access_token);
+        }
+        if (isset($response->refresh_token) && !empty($response->refresh_token)) {
+          $key_value_store->set('refreshToken', $response->refresh_token);
+        }
+
+        return;
     }
 
     /**

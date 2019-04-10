@@ -1,0 +1,5 @@
+services:
+  newsletter2go.commands:
+    class: \Drupal\newsletter2go\Commands\Newsletter2GoCommands
+    tags:
+      - { name: drush.command }
