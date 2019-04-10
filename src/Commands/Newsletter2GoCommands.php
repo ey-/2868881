@@ -20,7 +20,7 @@ class Newsletter2GoCommands extends DrushCommands {
    * @aliases nl2go-token
    * @usage newsletter2go:retrieve-access-token
    */
-  public function retrievAccessToken() {
+  public function retrieveAccessToken() {
 
     $helper = Api::getInstance();
     $helper->retrieveAccessToken();
