@@ -3,6 +3,7 @@
 namespace Drupal\newsletter2go\Helpers;
 
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Database\Database;
 
 class Api {
     private $version = 4000;
@@ -82,7 +83,8 @@ class Api {
         }
         // @todo: refactor database calls.
         $id = $this->postParams['id'];
-        $query = db_select('node', 'n');
+        $connexion = Database::getConnection();
+        $query = $connexion->select('node', 'n');
         $query->leftJoin('field_data_body', 'd', 'd.entity_id = n.nid');
         $query->leftJoin('users', 'u', 'u.uid = n.uid');
         $query->condition('n.nid', $id)
@@ -97,14 +99,14 @@ class Api {
         if (!$result) {
             return null;
         }
-        
+
         $result['url'] = url('', array('absolute' => true));
         $result['link'] = 'node/' . $id;
         $result['date'] = date('Y-m-d H:i:s', $result['date']);
         $result['category'] = array();
-        
+
         //tags
-        $query = db_select('field_data_field_tags', 't');
+        $query = $connexion->select('field_data_field_tags', 't');
         $query->innerJoin('taxonomy_term_data', 'dt', 't.field_tags_tid = dt.tid');
         $query->condition('t.entity_id', $id);
         $query->addField('dt', 'name', 'name');
@@ -112,9 +114,9 @@ class Api {
         foreach ($result['tags'] as &$tag) {
             $tag = $tag->name;
         }
-        
+
         //images
-        $query = db_select('field_data_field_image', 'fi');
+        $query = $connexion->select('field_data_field_image', 'fi');
         $query->innerJoin('file_managed', 'f', 'fi.field_image_fid = f.fid');
         $query->condition('fi.entity_id', $id);
         $query->addField('f', 'uri', 'uri');
@@ -122,7 +124,7 @@ class Api {
         foreach ($result['images'] as &$image) {
             $image = file_create_url($image->uri);
         }
-        
+
         return $result;
     }
 
@@ -140,7 +142,7 @@ class Api {
      *
      * @param string $action
      * @param array $post
-     * 
+     *
      * @return string
      */
     public function execute($action, $post, $method = 'POST') {
@@ -163,14 +165,14 @@ class Api {
      * @param string $action
      * @param string $access_token
      * @param array $post
-     * 
+     *
      * @return string
-     * 
+     *
      * @internal param mixed $params
      */
     private function executeRequest($action, $access_token, $post, $method = 'POST') {
         $apiUrl = N2GO_API_URL;
-        
+
         $cURL = curl_init();
         curl_setopt($cURL, CURLOPT_URL, $apiUrl . $action);
         curl_setopt($cURL, CURLOPT_RETURNTRANSFER, TRUE);
@@ -208,7 +210,7 @@ class Api {
      * Creates request and returns response, refresh access token.
      *
      * @return bool
-     * 
+     *
      * @internal param mixed $params
      */
     private function refreshTokens() {
@@ -318,7 +320,7 @@ class Api {
      *
      * @param string $action
      * @param mixed $post
-     * 
+     *
      * @return array
      */
     public function executeN2Go($action, $post) {
@@ -351,7 +353,7 @@ class Api {
 
     /**
      * Get forms from N2GO API.
-     * 
+     *
      * @param string $authKey
      * @return array|false
      */
