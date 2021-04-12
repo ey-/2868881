@@ -8,6 +8,7 @@ use Drupal\Core\Render\Markup;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Url;
 use Drupal\newsletter2go\Helpers\Api;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -33,11 +34,11 @@ class ConfigForm extends ConfigFormBase {
 
   /**
    * Helper object.
-   * 
+   *
    * @var Api
    */
   protected $helper;
-  
+
   /**
    * Constructs N2Go configuration form.
    *
@@ -135,7 +136,7 @@ class ConfigForm extends ConfigFormBase {
       $active = false;
     }
 
-    $base_path = \Drupal::url('<front>');
+    $base_path = Url::fromRoute('<front>')->toString();
 
     // Because of broken HTML, use Markup::create() instead of strings to avoid sanitation.
     $form['api'] = array(
@@ -143,7 +144,7 @@ class ConfigForm extends ConfigFormBase {
       'n2goSection' => array(
         '#markup' => Markup::create('    <div class="n2go-section">
         <img src="'. $base_path . drupal_get_path('module', 'newsletter2go') . '/images/banner_drupal_newsletter2go.png"'.'
-			  
+
             width="92%; margin-left: 18px;" class="n2go_logo">
         <div class="n2go-block main-block" style="width:92%; margin-bottom: 30px; margin-left: 18px;">
             <div class="panel">
