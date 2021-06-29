@@ -1,5 +1,4 @@
 window.addEventListener('load', function () {
-    console.log('here');
     var formUniqueCode = document.getElementById('formUniqueCode').value.trim(),
         widgetPreviewSubscribe = document.getElementById('widgetPreview'),
         widgetPreviewUnsubscribe = document.getElementById('widgetPreviewUnsubscribe'),
@@ -15,7 +14,6 @@ window.addEventListener('load', function () {
                 } else {
                     n2gConfig = JSON.parse(widgetStyleConfig.textContent);
                 }
-                console.log(n2gConfig);
 
                 [].forEach.call(document.getElementsByClassName('n2go-colorField'), function (element) {
                     var field = element.name.match(/[^.]+/g);
