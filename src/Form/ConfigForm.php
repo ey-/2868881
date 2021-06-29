@@ -95,7 +95,7 @@ class ConfigForm extends ConfigFormBase {
     $queryParams['version'] = N2GO_PLUGIN_VERSION;
     $queryParams['apiKey'] = $apiKey;
 
-    if ($queryParams['apiKey'] == '') {
+    if ($queryParams['apiKey'] === '') {
       \Drupal::configFactory()->getEditable('newsletter2go.config')
         ->set('apikey', generateRandomString())
         ->save();
@@ -123,10 +123,15 @@ class ConfigForm extends ConfigFormBase {
     }
 
     $response = $this->helper->executeN2Go('get/attributes', array('key' => $apiKey));
-    $color = $response['success'] ? 'greenyellow' : 'yellow';
+    if ($response === NULL) {
+      \Drupal::messenger()->addWarning('Could not call https://www.newsletter2go.com/en/api/get/attributes/');
+    }
+    else {
+      // What is the reason of having this?
+      $color = $response['success'] ? 'greenyellow' : 'yellow';
+    }
 
-
-    if (!strlen($formUniqueCode) > 0) {
+    if (empty($formUniqueCode)) {
       $errorMessage = "Please, enter the form unique code!";
     }
 
